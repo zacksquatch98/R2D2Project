@@ -3,24 +3,28 @@
 #define LED_R_PIN A2
 #define LED_B_PIN A3
 
-#define LCD_PIN 12
-#define SERVO_PIN 10
+#define LCD_PIN A4
+// #define SERVO_PIN 10
 
-#define LF_PIN 2 // LEFT FORWARD - IN1
-#define LB_PIN 4 // LEFT BACKWARD - IN2
-#define RF_PIN 7 // RIGHT FORWARD - IN3
-#define RB_PIN 8 // RIGHT BACKWARD - IN4
+#define LF_PIN 2        // LEFT FORWARD - IN1
+#define LB_PIN 4        // LEFT BACKWARD - IN2
+#define RF_PIN 7        // RIGHT FORWARD - IN3
+#define RB_PIN 8        // RIGHT BACKWARD - IN4
 
-#define LEFT_PWM_PIN 3  // - ENA
-#define RIGHT_PWM_PIN 5 // - ENB
+#define LEFT_PWM_PIN 3  // LEFT SPEED - ENA
+#define RIGHT_PWM_PIN 5 // RIGHT SPEED - ENB
 
 // Head Motor pins
-#define EN1_PIN 9
-#define EN2_PIN 6
-#define EN3_PIN 8
-#define EN4_PIN 7
+#define IN1_PIN 10      // HEAD LEFT
+#define IN2_PIN 11      // HEAD_RIGHT
+#define HEAD_PWM_PIN 6  // HEAD SPEED - ENA
 
-#define DEFAULT_SPEED 255
+// Possible additional motor control pins
+#define IN3_PIN 12
+#define IN4_PIN 13
+#define PWM_PIN 9
+
+#define DEFAULT_SPEED 150
 #define MAX_SPEED 255 // Should never exceed 255
 #define INC 50
 
