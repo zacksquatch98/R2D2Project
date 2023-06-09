@@ -21,6 +21,8 @@ Baud Rate: 9600
 | A2          | "LED_R_PIN"     | Connected to the RED LED.                                                                                                                                                 |
 | A3          | "LED_B_PIN"     | Connected to the BLUE LED.                                                                                                                                                |
 | A4          | "LCD_PIN"       | Connected to both LCDs on the R2D2.                                                                                                                                       |
+## Schematic
+![image](https://github.com/Myapi314/R2D2Project/assets/97209406/1872a832-ad23-4fe4-9d23-5e6626a209b1)
 
 ## Instructions
 The program accepts 1-2 character strings ending in "\n". The first character indicates the category of instruction: move the wheels, change the speed, turn on an led, turn the head, turn on the lcds. The second character (if there is one) indicates a sub-instruction in that category.
