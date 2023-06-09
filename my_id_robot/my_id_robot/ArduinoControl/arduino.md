@@ -24,7 +24,9 @@ Baud Rate: 9600
 
 ## Instructions
 The program accepts 1-2 character strings ending in "\n". The first character indicates the category of instruction: move the wheels, change the speed, turn on an led, turn the head, turn on the lcds. The second character (if there is one) indicates a sub-instruction in that category.
+
 Default Speed Value: 150
+
 Speed Increment Value: 50
 | Instruction Code | Description                                                            |
 |------------------|------------------------------------------------------------------------|
