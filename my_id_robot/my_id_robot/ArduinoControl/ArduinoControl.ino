@@ -6,10 +6,13 @@
 #define LCD_PIN 12
 #define SERVO_PIN 10
 
-#define LB_EN2_PIN 2 // LEFT BACK
-#define LF_EN4_PIN 3 // LEFT FRONT
-#define RB_EN3_PIN 4 // RIGHT BACK
-#define RF_EN1_PIN 5 // RIGHT FRONT
+#define LF_PIN 2 // LEFT FORWARD - IN1
+#define LB_PIN 4 // LEFT BACKWARD - IN2
+#define RF_PIN 7 // RIGHT FORWARD - IN3
+#define RB_PIN 8 // RIGHT BACKWARD - IN4
+
+#define LEFT_PWM_PIN 3  // - ENA
+#define RIGHT_PWM_PIN 5 // - ENB
 
 // Head Motor pins
 #define EN1_PIN 9
@@ -39,6 +42,80 @@ int LEFT_BACK;
 int RIGHT_FORWARD;
 int RIGHT_BACK;
 
+void setup() {
+  Serial.begin(9600); //Sets the data rate in bits per second (baud) for serial data transmission
+  
+  // Set up motors as output
+  pinMode(LF_PIN, OUTPUT);
+  pinMode(LB_PIN, OUTPUT);
+  pinMode(RF_PIN, OUTPUT);
+  pinMode(RB_PIN, OUTPUT);
+
+  // Set up PWM pins
+  pinMode(LEFT_PWM_PIN, OUTPUT);
+  pinMode(RIGHT_PWM_PIN, OUTPUT);
+
+  // Set up LEDs and LCD as output
+  pinMode(LED_Y_PIN, OUTPUT);
+  pinMode(LED_G_PIN, OUTPUT);
+  pinMode(LED_R_PIN, OUTPUT);
+  pinMode(LED_B_PIN, OUTPUT);
+  pinMode(LCD_PIN, OUTPUT);
+
+  // Power off all outputs and set their states to be off.
+  digitalWrite(LCD_PIN, LOW);
+  LCD = OFF;
+  powerOffAllLEDs();
+  setAllLEDsOFF();
+  powerOffAllMotors();
+  setAllMotorsOff();
+
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    // Read in instruction string.
+    String instruction = Serial.readStringUntil('\n');
+//    char instruction = Serial.read();
+
+    // Based on first char of instruction set the appropriate actions
+    switch (instruction[0]) {
+      case 'm':
+        // move wheels
+        setMotors(instruction[1]);
+        break;
+      case 's':
+        // speed of wheels
+        setWheelSpeed(instruction[1]);
+      case 'l':
+        // leds
+        turnOnLED(instruction[1]);
+        break;
+      case 'd':
+        // lcd
+        LCD = ON;
+        break;
+      case 'q':
+        // quit - turn off everything
+        setAllLEDsOFF();
+        setAllMotorsOff();
+        LCD = OFF;
+    }
+  }
+
+  // After updating the states, write the values to the pins.
+  digitalWrite(LB_PIN, LEFT_BACK);
+  digitalWrite(LF_PIN, LEFT_FORWARD);
+  digitalWrite(RB_PIN, RIGHT_BACK);
+  digitalWrite(RF_PIN, RIGHT_FORWARD);
+  analogWrite(LEFT_PWM_PIN, WHEEL_SPEED);
+  analogWrite(RIGHT_PWM_PIN, WHEEL_SPEED);
+
+  digitalWrite(LED_R_PIN, LED_R);
+  digitalWrite(LED_B_PIN, LED_B);
+  digitalWrite(LCD_PIN, LCD);
+}
+
 /* Set all LED pins with LOW signal. */
 void powerOffAllLEDs()
 {
@@ -60,19 +137,19 @@ void setAllLEDsOFF()
 /* Set all motor controller pins with LOW signal. */
 void powerOffAllMotors()
 {
-  digitalWrite(LB_EN2_PIN, LOW);
-  digitalWrite(LF_EN4_PIN, LOW);
-  digitalWrite(RB_EN3_PIN, LOW);
-  digitalWrite(RF_EN1_PIN, LOW);
+  digitalWrite(LF_PIN, LOW);
+  digitalWrite(LB_PIN, LOW);
+  digitalWrite(RF_PIN, LOW);
+  digitalWrite(RB_PIN, LOW);
 }
 
 /* Set the state of all wheel motors to be false. */
 void setAllMotorsOff()
 {
-  LEFT_FORWARD = false;
-  LEFT_BACK = false;
-  RIGHT_FORWARD = false;
-  RIGHT_BACK = false;
+  LEFT_FORWARD = LOW;
+  LEFT_BACK = LOW;
+  RIGHT_FORWARD = LOW;
+  RIGHT_BACK = LOW;
 }
 
 /* 
@@ -89,21 +166,21 @@ void setMotors(char dir)
       break;
     case 'f':
       // go forward
-      LEFT_FORWARD = true;
-      RIGHT_FORWARD = true;
+      LEFT_FORWARD = HIGH;
+      RIGHT_FORWARD = HIGH;
       break;
     case 'b':
       // go backward
-      LEFT_BACK = true;
-      RIGHT_BACK = true;
+      LEFT_BACK = HIGH;
+      RIGHT_BACK = HIGH;
       break;
     case 'l':
       // turn left
-      RIGHT_FORWARD = true;
+      RIGHT_FORWARD = HIGH;
       break;
     case 'r':
       // turn right
-      LEFT_FORWARD = true;
+      LEFT_FORWARD = HIGH;
       break;
     default:
       break;
@@ -162,72 +239,4 @@ void turnOnLED(char LED)
   default:
     break;
   }
-}
-
-void setup() {
-  Serial.begin(9600); //Sets the data rate in bits per second (baud) for serial data transmission
-  
-  // Set up motors as output
-  pinMode(LB_EN2_PIN, OUTPUT);
-  pinMode(LF_EN4_PIN, OUTPUT);
-  pinMode(RB_EN3_PIN, OUTPUT);
-  pinMode(RF_EN1_PIN, OUTPUT);
-
-  // Set up LEDs and LCD as output
-  pinMode(LED_Y_PIN, OUTPUT);
-  pinMode(LED_G_PIN, OUTPUT);
-  pinMode(LED_R_PIN, OUTPUT);
-  pinMode(LED_B_PIN, OUTPUT);
-  pinMode(LCD_PIN, OUTPUT);
-
-  // Power off all outputs and set their states to be off.
-  digitalWrite(LCD_PIN, LOW);
-  LCD = OFF;
-  powerOffAllLEDs();
-  setAllLEDsOFF();
-  powerOffAllMotors();
-  setAllMotorsOff();
-
-}
-
-void loop() {
-  if (Serial.available() > 0) {
-    // Read in instruction string.
-    String instruction = Serial.readStringUntil('\n');
-//    char instruction = Serial.read();
-
-    // Based on first char of instruction set the appropriate actions
-    switch (instruction[0]) {
-      case 'm':
-        // move wheels
-        setMotors(instruction[1]);
-        break;
-      case 's':
-        // speed of wheels
-        setWheelSpeed(instruction[1]);
-      case 'l':
-        // leds
-        turnOnLED(instruction[1]);
-        break;
-      case 'd':
-        // lcd
-        LCD = ON;
-        break;
-      case 'q':
-        // quit - turn off everything
-        setAllLEDsOFF();
-        setAllMotorsOff();
-        LCD = OFF;
-    }
-  }
-
-  // After updating the states, write the values to the pins.
-  analogWrite(LF_EN4_PIN, (LEFT_FORWARD * WHEEL_SPEED));
-  analogWrite(LB_EN2_PIN, (LEFT_BACK * WHEEL_SPEED));
-  analogWrite(RF_EN1_PIN, (RIGHT_FORWARD * WHEEL_SPEED));
-  analogWrite(RB_EN3_PIN, (RIGHT_BACK * WHEEL_SPEED));
-
-  digitalWrite(LED_R_PIN, LED_R);
-  digitalWrite(LED_B_PIN, LED_B);
-  digitalWrite(LCD_PIN, LCD);
 }
