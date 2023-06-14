@@ -15,8 +15,8 @@
 #define RIGHT_PWM_PIN 5 // RIGHT SPEED - ENB
 
 // Head Motor pins
-#define IN1_PIN 10      // HEAD LEFT
-#define IN2_PIN 11      // HEAD_RIGHT
+#define HL_PIN 10      // HEAD LEFT - IN1
+#define HR_PIN 11      // HEAD_RIGHT - IN2
 #define HEAD_PWM_PIN 6  // HEAD SPEED - ENA
 
 // Possible additional motor control pins
@@ -32,6 +32,7 @@
 #define OFF LOW
 
 int WHEEL_SPEED = DEFAULT_SPEED;
+int TURN_SPEED = 100;   // May need to be adjusted
 
 // LED and LCD states
 int LED_R;
@@ -46,6 +47,10 @@ int LEFT_BACK;
 int RIGHT_FORWARD;
 int RIGHT_BACK;
 
+// Head state
+int TURN_HEAD_LEFT;
+int TURN_HEAD_RIGHT;
+
 void setup() {
   Serial.begin(9600); //Sets the data rate in bits per second (baud) for serial data transmission
   
@@ -54,10 +59,13 @@ void setup() {
   pinMode(LB_PIN, OUTPUT);
   pinMode(RF_PIN, OUTPUT);
   pinMode(RB_PIN, OUTPUT);
+  pinMode(HL_PIN, OUTPUT);
+  pinMode(HR_PIN, OUTPUT);
 
   // Set up PWM pins
   pinMode(LEFT_PWM_PIN, OUTPUT);
   pinMode(RIGHT_PWM_PIN, OUTPUT);
+  pinMode(HEAD_PWM_PIN, OUTPUT);
 
   // Set up LEDs and LCD as output
   pinMode(LED_Y_PIN, OUTPUT);
@@ -69,10 +77,12 @@ void setup() {
   // Power off all outputs and set their states to be off.
   digitalWrite(LCD_PIN, LOW);
   LCD = OFF;
+  TURN_HEAD_LEFT = LOW;
+  TURN_HEAD_RIGHT = LOW;
   powerOffAllLEDs();
   setAllLEDsOFF();
   powerOffAllMotors();
-  setAllMotorsOff();
+  setAllWheelsOff();
 
 }
 
@@ -99,10 +109,13 @@ void loop() {
         // lcd
         LCD = ON;
         break;
+      case 'h':
+        // turn head
+        turnHead(instruction[1]);
       case 'q':
         // quit - turn off everything
         setAllLEDsOFF();
-        setAllMotorsOff();
+        setAllWheelsOff();
         LCD = OFF;
     }
   }
@@ -114,6 +127,10 @@ void loop() {
   digitalWrite(RF_PIN, RIGHT_FORWARD);
   analogWrite(LEFT_PWM_PIN, WHEEL_SPEED);
   analogWrite(RIGHT_PWM_PIN, WHEEL_SPEED);
+
+  digitalWrite(HL_PIN, TURN_HEAD_LEFT);
+  digitalWrite(HR_PIN, TURN_HEAD_RIGHT);
+  analogWrite(HEAD_PWM_PIN, TURN_SPEED);  // May be able to do this in setup if we don't ever change the speed...
 
   digitalWrite(LED_R_PIN, LED_R);
   digitalWrite(LED_B_PIN, LED_B);
@@ -145,10 +162,12 @@ void powerOffAllMotors()
   digitalWrite(LB_PIN, LOW);
   digitalWrite(RF_PIN, LOW);
   digitalWrite(RB_PIN, LOW);
+  digitalWrite(HL_PIN, LOW);
+  digitalWrite(HR_PIN, LOW);
 }
 
 /* Set the state of all wheel motors to be false. */
-void setAllMotorsOff()
+void setAllWheelsOff()
 {
   LEFT_FORWARD = LOW;
   LEFT_BACK = LOW;
@@ -162,11 +181,11 @@ void setAllMotorsOff()
  */
 void setMotors(char dir)
 {
-  setAllMotorsOff();
+  setAllWheelsOff();
   switch (dir) {
     case 's':
       // stop
-      setAllMotorsOff();
+      setAllWheelsOff();
       break;
     case 'f':
       // go forward
@@ -240,7 +259,30 @@ void turnOnLED(char LED)
   case 'b':
     LED_B = ON;
     break;
+  case: 'o':
+    setAllLEDsOFF();
   default:
     break;
+  }
+}
+
+/*
+ * Sets the direction the head should turn
+ * dir: direction of the head
+ */
+void turnHead(char dir)
+{
+  if (dir == 'l') {
+    // rotate head left
+    TURN_HEAD_LEFT = HIGH;
+    TURN_HEAD_RIGHT = LOW;
+  } else if (dir == 'r') {
+    // rotate head right
+    TURN_HEAD_LEFT = LOW;
+    TURN_HEAD_RIGHT = HIGH;
+  } else {
+    // default - do not rotate
+    TURN_HEAD_LEFT = LOW;
+    TURN_HEAD_RIGHT = LOW;
   }
 }

@@ -16,6 +16,12 @@ class MainSubscriber(Node):
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
+        self.ir_subscription =self.create_subscription(
+            String,
+            'sensor',
+            self.sensor_callback,
+            10
+        )
         self.opencvpublisher_ = self.create_publisher(String, 'opencv', 10)
         self.servopublisher_ = self.create_publisher(String, 'servo', 10)    
 
@@ -45,6 +51,9 @@ class MainSubscriber(Node):
             opencv_msg.data = '%s' % msg.data
             self.opencvpublisher_.publish(opencv_msg)
             self.get_logger().info('Main to Opencv: "%s"' % opencv_msg.data)
+
+    def sensor_callback(self, msg):
+        self.get_logger().info(msg.data)
 
 def main(args=None):
     rclpy.init(args=args)
