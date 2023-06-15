@@ -8,6 +8,8 @@ This project used ROS2 to run the bulk of the project on our main computer (Rasp
 * main_subscriber
 * voice_publisher
 * arduino_subscriber
+* ir_publisher
+* ultrasonic_publisher
 
 We used an arduino nano to handle the control of our motors and LEDs which communicated with our robot via a serial USB connection. 
 
